@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8"/>
+    <!-- <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/animate.css@3.5.2/animate.min.css"> -->
+    <style>
+        .container {
+            position: relative;
+            font-family: Arial;
+        }
+
+        .height-100vh {
+            height: 16vh;
+            position: relative;               /* establish nearest positioned ancestor for
+                                                 absolute positioning */
+        }
+
+        .center-aligned {
+          display: box;
+          display: flex;
+          box-align: center;
+          align-items: center;
+          box-pack: center;
+          justify-content: center;
+        }
+
+        .background-image {
+          position: relative;
+        }
+
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+
+        .text-block {
+            position: absolute;
+            left: 50%;                        /* horizontal alignment */
+            top: 30%;                         /* vertical alignment */
+            transform: translate(-50%, -50%); /* precise centering; see link below */
+            color: rgb(5, 5, 5); 
+        }
+    </style>
+    </head>
+ 
+    <body>
+        <section class="height-100vh center-aligned">
+                <!-- <img id="tip-image" class="background-image" src="http://localhost:8080/media/banner5.jpg" height="60" width="550"/> -->
+                <img id="tip-image" class="background-image" src="http://localhost:8080/media/blue.jpg" height="95" width="550"/>                
+                <div id="tip-message" class="text-block"><p></p></div>
+        </section>
+    
+        <!-- <img id="tip-gif" class="center" src="http://localhost:8080/media/yay.gif" height="500" width="600" /> -->
+        <!-- <div align="right">
+            <div id="tip-single" class="text-block"><p></p></div>
+        </div> -->
+    </body>
+    <script src="https://cdn.rawgit.com/jonnyreeves/js-logger/master/src/logger.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <script>
+        var $ = function (id) {
+            return document.getElementById(id);
+        };
+        
+        var socket = io.connect('http://localhost:8080');
+
+        socket.on('connected', function() {
+            imgObj = document.getElementById('tip-image');
+            imgObj.style.visibility='hidden';
+            imgObj.style.top = '-30px';
+            // imgObj.style.left = '900px';  // -700px
+            // myMove();
+        })
+
+        socket.on('tipoff', function() {
+            document.querySelector('#tip-message').innerHTML = " ";
+            // var img1 = $('tip-image');     
+            $("tip-image").style.visibility = 'hidden';
+        })
+
+        socket.on('tipmessage', function(message) {
+            switch(message[0]) {
+                case '5':  // 10,000+ tokens
+                    var audio = new Audio('media/BoxingBell.mp3')
+                    audio.play();
+                    break;
+                case '4':  // 1,000+ tokens
+                    var audio = new Audio('media/williamtell.mp3')
+                    audio.play();
+                    break;
+                case '3':  // 500+ tokens
+                    var audio = new Audio('media/BoxingBell.mp3')
+                    audio.play();
+                    break;
+                case '2':  // 100+ tokens
+                    var audio = new Audio('media/bikehorn.mp3')
+                    audio.play();
+                    break;
+                case '1':  // 25+ tokens
+                var audio = new Audio('media/frontdeskbell.mp3')
+                    audio.play();
+                    break;
+                default:  // 50+ tokens
+                    var audio = new Audio('media/frontdeskbell.mp3')
+                    audio.play();
+                    break;
+            }
+            var bmessage = message.substring(1);
+
+            document.querySelector('#tip-message').innerHTML = '<h3>' + bmessage + '</h3>';
+            $("tip-image").src="media/blue.jpg";
+
+            var img1 = $('tip-image');                                      /* identify the image file */
+            img1.style.visibility = 'visible';                              /* make it visible         */
+
+            var img2 = $('tip-gif');                   /* identify the image file */
+            img2.style.visibility = 'visible';                              /* make it visible         */
+            // setImmediate()
+            setTimeout(function(){                                          /* wait to clear it        */
+                $("tip-gif").style.visibility= hidden ? "hidden" : "hidden";
+                hidden = !hidden;
+            },9000);
+
+            // else {
+            //     document.querySelector('#chat-log').value += (message + '\n');
+            // }
+        })
+
+        socket.on('tipsingle', function(message) {
+            document.querySelector('#tip-single').innerHTML = '<h2>Total Tips: ' + message + '</h2>';
+
+                setTimeout(function(){
+                    $("tip-single").style.visibility= hidden ? "hidden" : "hidden";
+                    hidden = !hidden;
+                },3000);
+        })
+
+        var socket = io.connect(window.location.hostname);
+
+        socket.on('timer', function (data) {  
+            $('#counter').html(data.countdown);
+        });
+
+        $('#reset').click(function() {
+            socket.emit('reset');
+        });
+
+        // socket.on('tipmsg', function(message) {
+        //     document.getElementById("tipmsg").innerHTML = '<h2>' + message + '</h2>';
+        // })
+
+        window.onload = function() {init();};
+
+    </script>    
+
+</html>
